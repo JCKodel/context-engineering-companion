@@ -28,6 +28,32 @@ Sakamoto. Motivo: é conta que ninguém da equipe vai revisar, para
 resolver um problema que a biblioteca padrão já resolve com duas
 chamadas.
 
+## D3: encaixes conhece agenda, agenda não conhece encaixes
+
+**Data**: 2026-07-29
+**Vale para**: a fronteira entre as duas fatias
+
+O encaixe automático dispara no cancelamento, então uma das duas
+fatias precisa chamar a outra. A direção é uma só: `encaixes` importa
+a porta da frente de `agenda` (marcar e cancelar consulta) e a agenda
+nunca importa nada de `encaixes`.
+
+A consequência prática é que a rota que a recepção usa para cancelar
+muda de dono: ela passa a ser servida por `encaixes.http.ts`, que
+compõe o cancelamento com a tentativa de encaixe, e sai de
+`agenda.http.ts`.
+
+**Motivo**: a alternativa faria as duas se importarem, e ciclo entre
+fatias é o começo do caroço que a organização por feature existe para
+evitar. Entre as duas direções possíveis, a que sobra é a que segue a
+dependência real do domínio: encaixe não existe sem consulta, consulta
+existe sem encaixe.
+
+**Descartado**: passar para `cancelar-consulta.usecase.ts` uma função
+de notificação que a fatia de encaixes registraria. Motivo: é
+interface com implementação única, proibida pelas convenções, e
+inverte a leitura do código sem tirar o acoplamento.
+
 ## D2: quem escolhe onde o banco mora é o ponto de entrada
 
 **Data**: 2026-07-29

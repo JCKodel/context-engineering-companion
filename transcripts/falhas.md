@@ -154,3 +154,31 @@ O que isso ensina: quem escreve o pacote é a última linha de defesa,
 porque o pacote é a peça que ninguém confere. Camada 1 e camada 2
 contra a spec é uma leitura de dois minutos, e vale ser feita antes de
 mandar, não depois de duas sessões trabalharem em cima.
+
+## F07: a fronteira de escrita não previa os testes
+
+**Sessão**: 05, encaixes, subtarefa isolada
+**Custo do conserto**: nenhum; o desvio foi declarado no retorno
+
+O contrato da subtarefa autorizava escrever dentro de
+`src/encaixes/` e mais duas exceções nominais: registrar a rota nova
+em `src/servidor.ts` e tirar a rota de cancelamento de
+`src/agenda/agenda.http.ts`. A instrução seguinte era explícita: se
+precisar de qualquer outra mudança em `src/agenda/`, pare e devolva o
+pedido em vez de editar.
+
+A subtarefa editou também `src/agenda/agenda.http.test.ts`, que não
+estava nas exceções, para remover os dois testes da rota que mudou de
+dono. Sem isso a suíte quebraria, então o desvio era necessário: o
+buraco é do contrato, que autorizou mexer num arquivo e esqueceu do
+teste ao lado dele.
+
+O que salva o episódio é que ela declarou o desvio na entrega, no
+item de arquivos alterados, sem esconder atrás dos 47 testes verdes.
+O que preocupa é que ela escolheu entregar em vez de parar, e essa é
+a escolha que a instrução mandava não fazer.
+
+O que isso ensina: fronteira de escrita se desenha por unidade de
+mudança, não por arquivo. Autorizar um arquivo é autorizar o teste ao
+lado dele, e um contrato que separa os dois vai ser desobedecido por
+uma razão boa, que é o pior tipo de desobediência para se pegar depois.
