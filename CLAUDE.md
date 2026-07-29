@@ -10,6 +10,9 @@ encaixe automático no cancelamento.
   pergunte antes de implementar.
 - Como fazemos as coisas aqui: `docs/convencoes.md`, obrigatório para
   todo arquivo novo.
+- Por que fizemos assim: `docs/decisoes.md`, uma entrada por decisão
+  fechada, com o motivo. Antes de mudar qualquer coisa que tenha
+  entrada lá, leia a entrada.
 - O que já foi construído: o próprio `src/`, uma pasta por feature.
 
 ## Stack
