@@ -25,9 +25,12 @@ dia da semana, o horário em que começa e termina o atendimento. Dia
 sem faixa cadastrada é dia em que o profissional não atende.
 
 - Profissional é cadastrado com pelo menos um dia de atendimento na
-  grade; grade vazia é recusada.
-- A faixa de um dia tem início antes do fim, e os dois caem em minuto
-  cheio ou meia hora, para casar com os slots de 30 minutos.
+  grade; grade vazia é recusada com "Profissional precisa de pelo
+  menos um dia de atendimento".
+- A faixa de um dia tem início antes do fim, e os dois caem em hora
+  cheia ou meia hora, para casar com os slots de 30 minutos. Faixa
+  que viole qualquer uma das duas coisas é recusada com "Faixa de
+  atendimento inválida".
 - A grade pode ser alterada; consultas já marcadas fora da grade nova
   continuam válidas e aparecem na agenda do dia.
 
