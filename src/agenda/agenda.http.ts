@@ -5,6 +5,7 @@ import {
   criarCancelarConsulta,
 } from "./cancelar-consulta.usecase.ts";
 import type { RepositorioConsultas } from "./consultas.repositorio.ts";
+import { criarGerarRelatorioMensal } from "./gerar-relatorio-mensal.usecase.ts";
 import {
   ErroMarcarConsulta,
   criarMarcarConsulta,
@@ -19,6 +20,7 @@ export function criarRotasAgenda(
     repositorioProfissionais,
   );
   const cancelarConsulta = criarCancelarConsulta(repositorioConsultas);
+  const gerarRelatorioMensal = criarGerarRelatorioMensal(repositorioConsultas);
   const app = new Hono();
 
   app.post("/consultas", async (c) => {
@@ -48,6 +50,11 @@ export function criarRotasAgenda(
       }
       throw erro;
     }
+  });
+
+  app.get("/relatorios/mensal", (c) => {
+    const mes = c.req.query("mes") ?? "";
+    return c.json(gerarRelatorioMensal(mes));
   });
 
   return app;

@@ -26,6 +26,9 @@ function criarDubleConsultas(
     listarPorProfissionalEData(): Consulta[] {
       return [];
     },
+    listarPorMes(): Consulta[] {
+      return [];
+    },
     buscarPorId(): Consulta | undefined {
       return existente;
     },

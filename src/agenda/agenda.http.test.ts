@@ -19,6 +19,7 @@ function criarApp() {
   return {
     app: criarRotasAgenda(repositorioConsultas, repositorioProfissionais),
     profissionalId: profissional.id,
+    repositorioConsultas,
   };
 }
 
@@ -149,4 +150,48 @@ test("POST /consultas/:id/cancelamento com id inexistente responde 404 sem mensa
 
   expect(resposta.status).toBe(404);
   expect(await resposta.text()).toBe("");
+});
+
+test("GET /relatorios/mensal soma consultas por profissional, separadas em dia útil e fim de semana", async () => {
+  const { app, profissionalId, repositorioConsultas } = criarApp();
+
+  repositorioConsultas.marcar({
+    profissionalId,
+    pacienteId: 10,
+    data: "2026-08-04", // terça
+    inicio: 9 * 60,
+    fim: 9 * 60 + 30,
+  });
+  repositorioConsultas.marcar({
+    profissionalId,
+    pacienteId: 20,
+    data: "2026-08-01", // sábado
+    inicio: 9 * 60,
+    fim: 9 * 60 + 30,
+  });
+
+  const resposta = await app.request("/relatorios/mensal?mes=2026-08");
+
+  expect(resposta.status).toBe(200);
+  expect(await resposta.json()).toEqual([
+    { profissionalId, diaUtil: 1, fimDeSemana: 1 },
+  ]);
+});
+
+test("GET /relatorios/mensal não conta consulta cancelada", async () => {
+  const { app, profissionalId, repositorioConsultas } = criarApp();
+
+  const marcada = repositorioConsultas.marcar({
+    profissionalId,
+    pacienteId: 10,
+    data: "2026-08-04",
+    inicio: 9 * 60,
+    fim: 9 * 60 + 30,
+  });
+  repositorioConsultas.cancelar(marcada.id, "Paciente desmarcou");
+
+  const resposta = await app.request("/relatorios/mensal?mes=2026-08");
+
+  expect(resposta.status).toBe(200);
+  expect(await resposta.json()).toEqual([]);
 });

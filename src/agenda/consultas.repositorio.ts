@@ -88,6 +88,16 @@ export function criarRepositorioConsultas(db: DatabaseSync) {
     return linhas.map(linhaParaConsulta);
   }
 
+  function listarPorMes(mes: string): Consulta[] {
+    const linhas = db
+      .prepare(
+        "SELECT id, prof_id, data, inicio, fim, paciente_id, status, motivo_cancelamento FROM consulta WHERE data LIKE ?",
+      )
+      .all(`${mes}-%`) as LinhaConsulta[];
+
+    return linhas.map(linhaParaConsulta);
+  }
+
   function buscarPorId(id: number): Consulta | undefined {
     const linha = db
       .prepare(
@@ -111,7 +121,13 @@ export function criarRepositorioConsultas(db: DatabaseSync) {
     return buscarPorId(id);
   }
 
-  return { marcar, listarPorProfissionalEData, buscarPorId, cancelar };
+  return {
+    marcar,
+    listarPorProfissionalEData,
+    listarPorMes,
+    buscarPorId,
+    cancelar,
+  };
 }
 
 export type RepositorioConsultas = ReturnType<

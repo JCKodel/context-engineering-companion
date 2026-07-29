@@ -94,3 +94,63 @@ test("cancelar consulta já cancelada retorna undefined", () => {
 
   expect(repositorio.cancelar(marcada.id, "Segunda tentativa")).toBeUndefined();
 });
+
+test("lista consulta do mês de qualquer profissional, sem contar nem classificar", () => {
+  const repositorio = criarRepositorioConsultas(new DatabaseSync(":memory:"));
+
+  const doProfissional1 = repositorio.marcar({
+    profissionalId: 1,
+    pacienteId: 10,
+    data: "2026-08-04",
+    inicio: 9 * 60,
+    fim: 9 * 60 + 30,
+  });
+  const doProfissional2 = repositorio.marcar({
+    profissionalId: 2,
+    pacienteId: 20,
+    data: "2026-08-20",
+    inicio: 14 * 60,
+    fim: 14 * 60 + 30,
+  });
+
+  expect(repositorio.listarPorMes("2026-08")).toEqual([
+    doProfissional1,
+    doProfissional2,
+  ]);
+});
+
+test("não lista consulta de outro mês", () => {
+  const repositorio = criarRepositorioConsultas(new DatabaseSync(":memory:"));
+
+  repositorio.marcar({
+    profissionalId: 1,
+    pacienteId: 10,
+    data: "2026-07-31",
+    inicio: 9 * 60,
+    fim: 9 * 60 + 30,
+  });
+  repositorio.marcar({
+    profissionalId: 1,
+    pacienteId: 10,
+    data: "2026-09-01",
+    inicio: 9 * 60,
+    fim: 9 * 60 + 30,
+  });
+
+  expect(repositorio.listarPorMes("2026-08")).toEqual([]);
+});
+
+test("consulta cancelada aparece crua na lista do mês (contar ou não ainda depende de resposta da coordenação)", () => {
+  const repositorio = criarRepositorioConsultas(new DatabaseSync(":memory:"));
+
+  const marcada = repositorio.marcar({
+    profissionalId: 1,
+    pacienteId: 10,
+    data: "2026-08-04",
+    inicio: 9 * 60,
+    fim: 9 * 60 + 30,
+  });
+  const cancelada = repositorio.cancelar(marcada.id, "Paciente desmarcou");
+
+  expect(repositorio.listarPorMes("2026-08")).toEqual([cancelada]);
+});

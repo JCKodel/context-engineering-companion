@@ -56,6 +56,9 @@ function criarDubleConsultas(existentes: Consulta[] = []): RepositorioConsultas 
           consulta.status === "marcada",
       );
     },
+    listarPorMes(mes: string): Consulta[] {
+      return consultas.filter((consulta) => consulta.data.startsWith(mes));
+    },
     buscarPorId(id: number): Consulta | undefined {
       return consultas.find((consulta) => consulta.id === id);
     },
