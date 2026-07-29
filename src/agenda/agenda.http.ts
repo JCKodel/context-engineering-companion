@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { RepositorioProfissionais } from "../profissionais/profissionais.repositorio.ts";
+import type { ConsultarGrade } from "../profissionais/consultar-grade.usecase.ts";
 import type { RepositorioConsultas } from "./consultas.repositorio.ts";
 import { criarGerarRelatorioMensal } from "./gerar-relatorio-mensal.usecase.ts";
 import {
@@ -9,11 +9,11 @@ import {
 
 export function criarRotasAgenda(
   repositorioConsultas: RepositorioConsultas,
-  repositorioProfissionais: RepositorioProfissionais,
+  consultarGrade: ConsultarGrade,
 ) {
   const marcarConsulta = criarMarcarConsulta(
     repositorioConsultas,
-    repositorioProfissionais,
+    consultarGrade,
   );
   const gerarRelatorioMensal = criarGerarRelatorioMensal(repositorioConsultas);
   const app = new Hono();

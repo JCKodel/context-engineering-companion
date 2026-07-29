@@ -182,3 +182,44 @@ O que isso ensina: fronteira de escrita se desenha por unidade de
 mudança, não por arquivo. Autorizar um arquivo é autorizar o teste ao
 lado dele, e um contrato que separa os dois vai ser desobedecido por
 uma razão boa, que é o pior tipo de desobediência para se pegar depois.
+
+## F08: a regra que estava no pacote de toda sessão e ninguém aplicou
+
+**Sessão**: nenhuma; achado na auditoria final, depois das cinco
+**Custo do conserto**: 1 arquivo novo, 6 arquivos tocados, à mão
+
+A auditoria de fronteira antes da publicação encontrou isto:
+
+```text
+src/agenda/marcar-consulta.usecase.ts:1
+  import type { RepositorioProfissionais }
+    from "../profissionais/profissionais.repositorio.ts";
+src/agenda/agenda.http.ts:2
+  idem
+```
+
+Repositório de outra feature não é porta da frente. A regra está em
+`docs/convencoes.md`, está no `CLAUDE.md` que abre toda sessão, e
+estava escrita com todas as letras no contrato da subtarefa de
+encaixes. A fatia de encaixes, que recebeu a regra por último e por
+escrito, obedeceu: só importa use case de agenda. A fatia de agenda,
+que a violou na sessão 3, passou por mais três sessões sem que
+ninguém tropeçasse nela.
+
+O motivo provável é chato e importante: a violação nasceu porque
+`profissionais/` não tinha porta de leitura nenhuma, só
+`cadastrar-profissional.usecase.ts`. A sessão precisava da grade, o
+único jeito de obter a grade era o repositório, e importar o
+repositório funcionou. Nenhum teste ficou vermelho, nenhum tipo
+reclamou, e o `CLAUDE.md` não tem como recusar um import.
+
+O conserto foi criar `profissionais/consultar-grade.usecase.ts`, que é
+a porta que faltava, e passar `consultarGrade` no lugar do repositório
+inteiro. Efeito colateral bom: os dublês de teste da agenda encolheram
+de um repositório de quatro métodos para uma função de uma linha.
+
+O que isso ensina: regra no pacote não é regra aplicada. O que impede
+a violação de nascer é a outra feature ter a porta pronta; quando ela
+não tem, a regra perde para a única coisa que funciona. E a checagem
+que pega isso é mecânica, não é leitura: um `grep` por import entre
+pastas, rodado ao fim de cada fatia, custa dez segundos.

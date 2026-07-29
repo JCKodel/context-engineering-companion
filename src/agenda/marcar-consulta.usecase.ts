@@ -1,4 +1,4 @@
-import type { RepositorioProfissionais } from "../profissionais/profissionais.repositorio.ts";
+import type { ConsultarGrade } from "../profissionais/consultar-grade.usecase.ts";
 import type {
   Consulta,
   NovaConsulta,
@@ -28,16 +28,14 @@ function seSobrepoe(
 
 export function criarMarcarConsulta(
   repositorioConsultas: RepositorioConsultas,
-  repositorioProfissionais: RepositorioProfissionais,
+  consultarGrade: ConsultarGrade,
 ) {
   return function marcarConsulta(pedido: PedidoConsulta): Consulta {
-    const profissional = repositorioProfissionais.buscarPorId(
-      pedido.profissionalId,
-    );
+    const grade = consultarGrade(pedido.profissionalId);
     const fim = pedido.inicio + DURACAO_CONSULTA_MINUTOS;
     const diaSemana = diaDaSemana(pedido.data);
 
-    const atendeNoHorario = (profissional?.grade ?? []).some(
+    const atendeNoHorario = grade.some(
       (faixa) =>
         faixa.diaSemana === diaSemana &&
         pedido.inicio >= faixa.inicio &&

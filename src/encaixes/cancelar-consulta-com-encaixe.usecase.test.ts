@@ -7,10 +7,9 @@ import type {
 } from "../agenda/consultas.repositorio.ts";
 import { criarMarcarConsulta } from "../agenda/marcar-consulta.usecase.ts";
 import type {
-  NovoProfissional,
-  Profissional,
-  RepositorioProfissionais,
-} from "../profissionais/profissionais.repositorio.ts";
+  ConsultarGrade,
+  FaixaGrade,
+} from "../profissionais/consultar-grade.usecase.ts";
 import { criarCancelarConsultaComEncaixe } from "./cancelar-consulta-com-encaixe.usecase.ts";
 import type {
   EntradaListaDeEspera,
@@ -18,27 +17,17 @@ import type {
   RepositorioListaDeEspera,
 } from "./lista-de-espera.repositorio.ts";
 
-const PROFISSIONAL_TERCA: Profissional = {
-  id: 1,
-  nome: "Dra. Cecília",
-  especialidade: "Clínico geral",
-  grade: [{ diaSemana: 2, inicio: 8 * 60, fim: 12 * 60 }],
-};
+const GRADE_TERCA: FaixaGrade[] = [
+  { diaSemana: 2, inicio: 8 * 60, fim: 12 * 60 },
+];
 
-function criarDubleProfissionaisMutavel(inicial: Profissional) {
+function criarDubleGradeMutavel(inicial: FaixaGrade[]) {
   let atual = inicial;
-  const repositorio: RepositorioProfissionais = {
-    cadastrar(novo: NovoProfissional): Profissional {
-      return { id: 1, ...novo };
-    },
-    buscarPorId(): Profissional | undefined {
-      return atual;
-    },
-  };
+  const consultarGrade: ConsultarGrade = () => atual;
   return {
-    repositorio,
-    mudarGrade(grade: Profissional["grade"]) {
-      atual = { ...atual, grade };
+    consultarGrade,
+    mudarGrade(grade: FaixaGrade[]) {
+      atual = grade;
     },
   };
 }
@@ -122,13 +111,12 @@ test("cancelamento encaixa o primeiro da lista de espera no horário liberado (c
   const repositorioListaDeEspera = criarDubleListaDeEspera([
     { id: 1, profissionalId: 1, pacienteId: 99, data: "2026-08-04" },
   ]);
-  const { repositorio: repositorioProfissionais } =
-    criarDubleProfissionaisMutavel(PROFISSIONAL_TERCA);
+  const { consultarGrade } = criarDubleGradeMutavel(GRADE_TERCA);
 
   const cancelarConsultaComEncaixe = criarCancelarConsultaComEncaixe(
     repositorioListaDeEspera,
     criarCancelarConsulta(repositorioConsultas),
-    criarMarcarConsulta(repositorioConsultas, repositorioProfissionais),
+    criarMarcarConsulta(repositorioConsultas, consultarGrade),
   );
 
   cancelarConsultaComEncaixe({ consultaId: marcada.id, motivo: "Paciente desmarcou" });
@@ -156,13 +144,12 @@ test("quem entrou primeiro na lista fica com o horário aberto (critério 5)", (
     { id: 1, profissionalId: 1, pacienteId: 91, data: "2026-08-04" },
     { id: 2, profissionalId: 1, pacienteId: 92, data: "2026-08-04" },
   ]);
-  const { repositorio: repositorioProfissionais } =
-    criarDubleProfissionaisMutavel(PROFISSIONAL_TERCA);
+  const { consultarGrade } = criarDubleGradeMutavel(GRADE_TERCA);
 
   const cancelarConsultaComEncaixe = criarCancelarConsultaComEncaixe(
     repositorioListaDeEspera,
     criarCancelarConsulta(repositorioConsultas),
-    criarMarcarConsulta(repositorioConsultas, repositorioProfissionais),
+    criarMarcarConsulta(repositorioConsultas, consultarGrade),
   );
 
   cancelarConsultaComEncaixe({ consultaId: marcada.id, motivo: "Paciente desmarcou" });
@@ -190,14 +177,14 @@ test("horário que não cabe mais na grade vigente passa para o próximo da list
     { id: 1, profissionalId: 1, pacienteId: 91, data: "2026-08-04" },
     { id: 2, profissionalId: 1, pacienteId: 92, data: "2026-08-04" },
   ]);
-  const { repositorio: repositorioProfissionais, mudarGrade } =
-    criarDubleProfissionaisMutavel(PROFISSIONAL_TERCA);
+  const { consultarGrade, mudarGrade } =
+    criarDubleGradeMutavel(GRADE_TERCA);
   mudarGrade([{ diaSemana: 2, inicio: 10 * 60, fim: 12 * 60 }]);
 
   const cancelarConsultaComEncaixe = criarCancelarConsultaComEncaixe(
     repositorioListaDeEspera,
     criarCancelarConsulta(repositorioConsultas),
-    criarMarcarConsulta(repositorioConsultas, repositorioProfissionais),
+    criarMarcarConsulta(repositorioConsultas, consultarGrade),
   );
 
   cancelarConsultaComEncaixe({ consultaId: marcada.id, motivo: "Paciente desmarcou" });
@@ -220,13 +207,12 @@ test("lista de espera vazia deixa o horário livre, sem encaixe", () => {
     fim: 9 * 60 + 30,
   });
   const repositorioListaDeEspera = criarDubleListaDeEspera();
-  const { repositorio: repositorioProfissionais } =
-    criarDubleProfissionaisMutavel(PROFISSIONAL_TERCA);
+  const { consultarGrade } = criarDubleGradeMutavel(GRADE_TERCA);
 
   const cancelarConsultaComEncaixe = criarCancelarConsultaComEncaixe(
     repositorioListaDeEspera,
     criarCancelarConsulta(repositorioConsultas),
-    criarMarcarConsulta(repositorioConsultas, repositorioProfissionais),
+    criarMarcarConsulta(repositorioConsultas, consultarGrade),
   );
 
   const consulta = cancelarConsultaComEncaixe({

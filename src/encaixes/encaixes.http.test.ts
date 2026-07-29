@@ -3,6 +3,7 @@ import { expect, test } from "vitest";
 import { criarCancelarConsulta } from "../agenda/cancelar-consulta.usecase.ts";
 import { criarRepositorioConsultas } from "../agenda/consultas.repositorio.ts";
 import { criarMarcarConsulta } from "../agenda/marcar-consulta.usecase.ts";
+import { criarConsultarGrade } from "../profissionais/consultar-grade.usecase.ts";
 import { criarRepositorioProfissionais } from "../profissionais/profissionais.repositorio.ts";
 import { criarRotasEncaixes } from "./encaixes.http.ts";
 import { criarRepositorioListaDeEspera } from "./lista-de-espera.repositorio.ts";
@@ -22,7 +23,10 @@ function criarApp() {
   const app = criarRotasEncaixes(
     repositorioListaDeEspera,
     criarCancelarConsulta(repositorioConsultas),
-    criarMarcarConsulta(repositorioConsultas, repositorioProfissionais),
+    criarMarcarConsulta(
+      repositorioConsultas,
+      criarConsultarGrade(repositorioProfissionais),
+    ),
   );
 
   return { app, profissionalId: profissional.id, repositorioConsultas };

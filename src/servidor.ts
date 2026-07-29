@@ -8,6 +8,7 @@ import { criarRepositorioConsultas } from "./agenda/consultas.repositorio.ts";
 import { criarMarcarConsulta } from "./agenda/marcar-consulta.usecase.ts";
 import { criarRotasEncaixes } from "./encaixes/encaixes.http.ts";
 import { criarRepositorioListaDeEspera } from "./encaixes/lista-de-espera.repositorio.ts";
+import { criarConsultarGrade } from "./profissionais/consultar-grade.usecase.ts";
 import { criarRotasProfissionais } from "./profissionais/profissionais.http.ts";
 import { criarRepositorioProfissionais } from "./profissionais/profissionais.repositorio.ts";
 
@@ -20,14 +21,15 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const repositorioProfissionais = criarRepositorioProfissionais(banco);
   const repositorioConsultas = criarRepositorioConsultas(banco);
   const repositorioListaDeEspera = criarRepositorioListaDeEspera(banco);
+  const consultarGrade = criarConsultarGrade(repositorioProfissionais);
   app.route("/", criarRotasProfissionais(repositorioProfissionais));
-  app.route("/", criarRotasAgenda(repositorioConsultas, repositorioProfissionais));
+  app.route("/", criarRotasAgenda(repositorioConsultas, consultarGrade));
   app.route(
     "/",
     criarRotasEncaixes(
       repositorioListaDeEspera,
       criarCancelarConsulta(repositorioConsultas),
-      criarMarcarConsulta(repositorioConsultas, repositorioProfissionais),
+      criarMarcarConsulta(repositorioConsultas, consultarGrade),
     ),
   );
   serve({ fetch: app.fetch, port: 3000 });

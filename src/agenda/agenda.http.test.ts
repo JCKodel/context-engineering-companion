@@ -1,5 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 import { expect, test } from "vitest";
+import { criarConsultarGrade } from "../profissionais/consultar-grade.usecase.ts";
 import { criarRepositorioProfissionais } from "../profissionais/profissionais.repositorio.ts";
 import { criarRotasAgenda } from "./agenda.http.ts";
 import { criarRepositorioConsultas } from "./consultas.repositorio.ts";
@@ -16,7 +17,10 @@ function criarApp() {
   });
 
   return {
-    app: criarRotasAgenda(repositorioConsultas, repositorioProfissionais),
+    app: criarRotasAgenda(
+      repositorioConsultas,
+      criarConsultarGrade(repositorioProfissionais),
+    ),
     profissionalId: profissional.id,
     repositorioConsultas,
   };

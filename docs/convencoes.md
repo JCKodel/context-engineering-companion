@@ -38,6 +38,11 @@ outra feature, importado pelo caminho da pasta dela. Importar arquivo
 interno de outra feature é proibido, e é o primeiro sinal de que a
 fronteira está errada.
 
+A regra vale para o código de produção. Teste monta o cenário como
+ponto de entrada, e por isso pode construir o repositório da outra
+feature para gravar o dado de que precisa, do mesmo jeito que
+`src/servidor.ts` faz.
+
 ## Abstração
 
 Interface com implementação única é proibida. A abstração nasce

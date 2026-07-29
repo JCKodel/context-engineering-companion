@@ -1,9 +1,8 @@
 import { expect, test } from "vitest";
 import type {
-  NovoProfissional,
-  Profissional,
-  RepositorioProfissionais,
-} from "../profissionais/profissionais.repositorio.ts";
+  ConsultarGrade,
+  FaixaGrade,
+} from "../profissionais/consultar-grade.usecase.ts";
 import type {
   Consulta,
   NovaConsulta,
@@ -14,24 +13,12 @@ import {
   criarMarcarConsulta,
 } from "./marcar-consulta.usecase.ts";
 
-const PROFISSIONAL_TERCA: Profissional = {
-  id: 1,
-  nome: "Dra. Cecília",
-  especialidade: "Clínico geral",
-  grade: [{ diaSemana: 2, inicio: 8 * 60, fim: 12 * 60 }],
-};
+const GRADE_TERCA: FaixaGrade[] = [
+  { diaSemana: 2, inicio: 8 * 60, fim: 12 * 60 },
+];
 
-function criarDubleProfissionais(
-  profissional: Profissional | undefined = PROFISSIONAL_TERCA,
-): RepositorioProfissionais {
-  return {
-    cadastrar(novo: NovoProfissional): Profissional {
-      return { id: 1, ...novo };
-    },
-    buscarPorId() {
-      return profissional;
-    },
-  };
+function criarDubleGrade(grade: FaixaGrade[] = GRADE_TERCA): ConsultarGrade {
+  return () => grade;
 }
 
 function criarDubleConsultas(existentes: Consulta[] = []): RepositorioConsultas {
@@ -77,7 +64,7 @@ function criarDubleConsultas(existentes: Consulta[] = []): RepositorioConsultas 
 test("aceita consulta às 9h de terça dentro da grade do profissional", () => {
   const marcarConsulta = criarMarcarConsulta(
     criarDubleConsultas(),
-    criarDubleProfissionais(),
+    criarDubleGrade(),
   );
 
   const consulta = marcarConsulta({
@@ -99,7 +86,7 @@ test("recusa segunda consulta no mesmo horário com 'Horário já ocupado'", () 
   const repositorioConsultas = criarDubleConsultas();
   const marcarConsulta = criarMarcarConsulta(
     repositorioConsultas,
-    criarDubleProfissionais(),
+    criarDubleGrade(),
   );
 
   marcarConsulta({
@@ -122,7 +109,7 @@ test("recusa segunda consulta no mesmo horário com 'Horário já ocupado'", () 
 test("recusa consulta às 14h de terça fora da grade com 'Profissional não atende neste horário'", () => {
   const marcarConsulta = criarMarcarConsulta(
     criarDubleConsultas(),
-    criarDubleProfissionais(),
+    criarDubleGrade(),
   );
 
   expect(() =>
@@ -138,7 +125,7 @@ test("recusa consulta às 14h de terça fora da grade com 'Profissional não ate
 test("fixa o dia da semana a partir da data: terça (2026-08-04) atende, quarta (2026-08-05) não", () => {
   const marcarConsulta = criarMarcarConsulta(
     criarDubleConsultas(),
-    criarDubleProfissionais(),
+    criarDubleGrade(),
   );
 
   expect(() =>
