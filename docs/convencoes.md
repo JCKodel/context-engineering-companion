@@ -44,6 +44,15 @@ Interface com implementação única é proibida. A abstração nasce
 quando a segunda implementação real aparece. A exceção é o
 repositório, cujo dublê de teste conta como segunda implementação.
 
+## Erro que a spec não prevê
+
+Mensagem de erro exibida à recepção vem copiada da spec, então erro
+que a spec não prevê não tem frase para copiar e não ganha uma
+inventada. O use case lança um erro sem mensagem de spec e o arquivo
+HTTP devolve o status apropriado com corpo vazio. Vale para uso
+indevido da API, como `id` inexistente ou recurso já processado, que
+não é regra de negócio da clínica.
+
 ## Testes
 
 - O nome do teste descreve a regra de negócio: "recusa consulta em
