@@ -1,5 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 
+export type StatusConsulta = "marcada" | "cancelada";
+
 export type Consulta = {
   id: number;
   profissionalId: number;
@@ -7,6 +9,8 @@ export type Consulta = {
   data: string;
   inicio: number;
   fim: number;
+  status: StatusConsulta;
+  motivoCancelamento: string | null;
 };
 
 export type NovaConsulta = {
@@ -17,6 +21,30 @@ export type NovaConsulta = {
   fim: number;
 };
 
+type LinhaConsulta = {
+  id: number;
+  prof_id: number;
+  data: string;
+  inicio: number;
+  fim: number;
+  paciente_id: number;
+  status: StatusConsulta;
+  motivo_cancelamento: string | null;
+};
+
+function linhaParaConsulta(linha: LinhaConsulta): Consulta {
+  return {
+    id: linha.id,
+    profissionalId: linha.prof_id,
+    pacienteId: linha.paciente_id,
+    data: linha.data,
+    inicio: linha.inicio,
+    fim: linha.fim,
+    status: linha.status,
+    motivoCancelamento: linha.motivo_cancelamento,
+  };
+}
+
 export function criarRepositorioConsultas(db: DatabaseSync) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS consulta (
@@ -25,7 +53,9 @@ export function criarRepositorioConsultas(db: DatabaseSync) {
       data TEXT NOT NULL,
       inicio INTEGER NOT NULL,
       fim INTEGER NOT NULL,
-      paciente_id INTEGER NOT NULL
+      paciente_id INTEGER NOT NULL,
+      status TEXT NOT NULL DEFAULT 'marcada',
+      motivo_cancelamento TEXT
     )
   `);
 
@@ -42,7 +72,7 @@ export function criarRepositorioConsultas(db: DatabaseSync) {
     );
     const id = Number(resultado.lastInsertRowid);
 
-    return { id, ...nova };
+    return { id, ...nova, status: "marcada", motivoCancelamento: null };
   }
 
   function listarPorProfissionalEData(
@@ -51,28 +81,37 @@ export function criarRepositorioConsultas(db: DatabaseSync) {
   ): Consulta[] {
     const linhas = db
       .prepare(
-        "SELECT id, prof_id, data, inicio, fim, paciente_id FROM consulta WHERE prof_id = ? AND data = ?",
+        "SELECT id, prof_id, data, inicio, fim, paciente_id, status, motivo_cancelamento FROM consulta WHERE prof_id = ? AND data = ? AND status = 'marcada'",
       )
-      .all(profissionalId, data) as {
-      id: number;
-      prof_id: number;
-      data: string;
-      inicio: number;
-      fim: number;
-      paciente_id: number;
-    }[];
+      .all(profissionalId, data) as LinhaConsulta[];
 
-    return linhas.map((linha) => ({
-      id: linha.id,
-      profissionalId: linha.prof_id,
-      pacienteId: linha.paciente_id,
-      data: linha.data,
-      inicio: linha.inicio,
-      fim: linha.fim,
-    }));
+    return linhas.map(linhaParaConsulta);
   }
 
-  return { marcar, listarPorProfissionalEData };
+  function buscarPorId(id: number): Consulta | undefined {
+    const linha = db
+      .prepare(
+        "SELECT id, prof_id, data, inicio, fim, paciente_id, status, motivo_cancelamento FROM consulta WHERE id = ?",
+      )
+      .get(id) as LinhaConsulta | undefined;
+
+    if (!linha) return undefined;
+
+    return linhaParaConsulta(linha);
+  }
+
+  function cancelar(id: number, motivo: string): Consulta | undefined {
+    const atualizar = db.prepare(
+      "UPDATE consulta SET status = 'cancelada', motivo_cancelamento = ? WHERE id = ? AND status = 'marcada'",
+    );
+    const resultado = atualizar.run(motivo, id);
+
+    if (Number(resultado.changes) === 0) return undefined;
+
+    return buscarPorId(id);
+  }
+
+  return { marcar, listarPorProfissionalEData, buscarPorId, cancelar };
 }
 
 export type RepositorioConsultas = ReturnType<

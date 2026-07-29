@@ -39,15 +39,34 @@ function criarDubleConsultas(existentes: Consulta[] = []): RepositorioConsultas 
   const consultas = [...existentes];
   return {
     marcar(nova: NovaConsulta): Consulta {
-      const consulta = { id: proximoId++, ...nova };
+      const consulta: Consulta = {
+        id: proximoId++,
+        ...nova,
+        status: "marcada",
+        motivoCancelamento: null,
+      };
       consultas.push(consulta);
       return consulta;
     },
     listarPorProfissionalEData(profissionalId: number, data: string): Consulta[] {
       return consultas.filter(
         (consulta) =>
-          consulta.profissionalId === profissionalId && consulta.data === data,
+          consulta.profissionalId === profissionalId &&
+          consulta.data === data &&
+          consulta.status === "marcada",
       );
+    },
+    buscarPorId(id: number): Consulta | undefined {
+      return consultas.find((consulta) => consulta.id === id);
+    },
+    cancelar(id: number, motivo: string): Consulta | undefined {
+      const consulta = consultas.find(
+        (consulta) => consulta.id === id && consulta.status === "marcada",
+      );
+      if (!consulta) return undefined;
+      consulta.status = "cancelada";
+      consulta.motivoCancelamento = motivo;
+      return consulta;
     },
   };
 }
