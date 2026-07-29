@@ -124,3 +124,33 @@ O que isso ensina: o código preserva a escolha e perde a razão. Uma
 sessão que não tem a razão não fica em silêncio sobre ela, e é por
 isso que a razão precisa morar num arquivo do projeto, e não numa
 folha de âncoras que só existe enquanto a sessão durar.
+
+## F06: o pacote contradizia a spec e ninguém viu, menos quem chegou sem ele
+
+**Sessão**: 04, relatório mensal
+**Custo do conserto**: uma emenda na spec, dois turnos depois
+
+`docs/spec-agendamento.md` listava "relatórios e faturamento" em Fora
+de escopo. O `pacote-04.md` pedia um relatório mensal. A contradição
+estava a uma linha de distância e passou por dois turnos inteiros.
+
+O detalhe que salva o registro é este: no turno 1 a sessão rodou
+`grep -n -i "relat\|mensal\|dia útil\|fim de semana" docs/spec-agendamento.md`,
+leu a linha que diz "fora de escopo" e seguiu para o desenho do
+relatório sem mencionar o assunto. Quem apontou a contradição foi uma
+sessão que chegou depois sem o pacote na janela, tentando descobrir
+sozinha o que estava acontecendo.
+
+A leitura mais provável é que o pacote afirmava o escopo com
+autoridade, e a spec entrou na janela como confirmação de uma coisa
+já decidida, não como fonte que pode discordar. A retomada, sem
+pacote nenhum, foi ler a spec para se situar, e leu a seção inteira.
+
+O conserto foi na spec: o relatório entrou no escopo, com a regra da
+consulta cancelada, e faturamento continuou fora. O erro de origem,
+porém, é do pacote, quer dizer, meu.
+
+O que isso ensina: quem escreve o pacote é a última linha de defesa,
+porque o pacote é a peça que ninguém confere. Camada 1 e camada 2
+contra a spec é uma leitura de dois minutos, e vale ser feita antes de
+mandar, não depois de duas sessões trabalharem em cima.
