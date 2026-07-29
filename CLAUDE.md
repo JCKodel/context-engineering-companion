@@ -16,8 +16,11 @@ encaixe automático no cancelamento.
 
 - TypeScript 5 sobre Node.js 24 LTS ou superior, com módulos ES.
 - Node roda os arquivos `.ts` direto, sem passo de build.
-- Servidor HTTP com Hono; banco com `node:sqlite`, o módulo nativo do
-  Node, sem ORM e sem driver externo.
+- Servidor HTTP com Hono, servido por `@hono/node-server` (adaptador
+  oficial do time do Hono para rodar sobre Node.js). Decisão tomada
+  em 2026-07-29; não pergunte de novo.
+- Banco com `node:sqlite`, o módulo nativo do Node, sem ORM e sem
+  driver externo.
 - Testes com Vitest.
 - Nenhuma dependência além dessas. Antes de instalar qualquer pacote,
   pergunte.
