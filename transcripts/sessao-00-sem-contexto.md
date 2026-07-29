@@ -2,7 +2,7 @@
 
 Ferramenta: Claude Code 2.1.220 (Anthropic), modelo Sonnet 5
 Data: 2026-07-29
-Sessão: 00 — anti-solução do capítulo 29
+Sessão: 00, anti-solução do capítulo 29
 Técnica-alvo: nenhuma (é o cenário ingênuo, antes de qualquer técnica)
 Reconstrução: não
 
