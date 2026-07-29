@@ -62,6 +62,17 @@ sem faixa cadastrada é dia em que o profissional não atende.
   horário liberado não couber na grade vigente, o próximo da lista é
   avaliado no lugar.
 
+## Relatório mensal
+
+A recepção fecha o mês contando quantas consultas cada profissional
+atendeu, separadas em dia útil e fim de semana. O relatório enxerga um
+mês por vez, identificado por `YYYY-MM`, e é leitura pura: não altera
+consulta nenhuma.
+
+Consulta cancelada não entra na contagem. A decisão veio da
+coordenação em 2026-07-29, depois de a dúvida ficar registrada no nome
+de um teste.
+
 ## Critérios de aceite
 
 1. **Dado** um profissional que atende terça das 8h às 12h, **quando** a
@@ -82,6 +93,6 @@ sem faixa cadastrada é dia em que o profissional não atende.
 ## Fora de escopo
 
 Autenticação e controle de acesso, interface gráfica, notificação ao
-paciente por qualquer canal, relatórios e faturamento, atendimento em
+paciente por qualquer canal, faturamento, atendimento em
 mais de uma unidade, fuso horário (tudo em horário local da clínica)
 e migração versionada de banco.
